@@ -1,0 +1,65 @@
+appdirs==1.4.4
+brotlipy==0.7.0
+certifi @ file:///croot/certifi_1671487769961/work/certifi
+cffi @ file:///croot/cffi_1670423208954/work
+chardet==5.1.0
+charset-normalizer @ file:///tmp/build/80754af9/charset-normalizer_1630003229654/work
+cmake==3.26.3
+contourpy==1.0.7
+cryptography @ file:///croot/cryptography_1677533068310/work
+cycler==0.11.0
+dgl==1.0.2+cu118
+filelock==3.11.0
+fonttools==4.39.3
+idna @ file:///croot/idna_1666125576474/work
+importlib-resources==5.12.0
+Jinja2==3.1.2
+joblib==1.2.0
+kiwisolver==1.4.4
+lit==16.0.1
+MarkupSafe==2.1.2
+matplotlib==3.7.1
+mkl-fft==1.3.1
+mkl-random @ file:///tmp/build/80754af9/mkl_random_1626186066731/work
+mkl-service==2.4.0
+mpmath==1.3.0
+networkx @ file:///croot/networkx_1678964333703/work
+numpy==1.24.2
+nvidia-cublas-cu11==11.10.3.66
+nvidia-cuda-cupti-cu11==11.7.101
+nvidia-cuda-nvrtc-cu11==11.7.99
+nvidia-cuda-runtime-cu11==11.7.99
+nvidia-cudnn-cu11==8.5.0.96
+nvidia-cufft-cu11==10.9.0.58
+nvidia-curand-cu11==10.2.10.91
+nvidia-cusolver-cu11==11.4.0.1
+nvidia-cusparse-cu11==11.7.4.91
+nvidia-nccl-cu11==2.14.3
+nvidia-nvtx-cu11==11.7.91
+packaging @ file:///croot/packaging_1678965309396/work
+pandas==2.0.1
+pathlims==1.0.0
+Pillow==9.5.0
+pooch @ file:///tmp/build/80754af9/pooch_1623324770023/work
+psutil @ file:///opt/conda/conda-bld/psutil_1656431268089/work
+pycparser @ file:///tmp/build/80754af9/pycparser_1636541352034/work
+pyOpenSSL @ file:///croot/pyopenssl_1677607685877/work
+pyparsing==3.0.9
+PySocks @ file:///tmp/build/80754af9/pysocks_1605305812635/work
+python-dateutil==2.8.2
+pytz==2023.3
+requests @ file:///croot/requests_1678709721434/work
+scikit-learn==1.2.2
+scipy==1.10.1
+six @ file:///tmp/build/80754af9/six_1644875935023/work
+sympy==1.11.1
+threadpoolctl==3.1.0
+torch==2.0.0
+torchaudio==2.0.1
+torchvision==0.15.1
+tqdm @ file:///croot/tqdm_1679561862951/work
+triton==2.0.0
+typing_extensions==4.5.0
+tzdata==2023.3
+urllib3 @ file:///croot/urllib3_1680254681959/work
+zipp==3.15.0
