@@ -9,24 +9,27 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 import torch.optim as optim
 from torch.utils.data import DataLoader
+from generate_rich_clubs import generate_graphs
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
-def generate_graphs(num_graphs=100, num_nodes=50):
-    graphs = []
-    labels = []
-    for _ in range(num_graphs):
-        p = np.random.uniform(0.01, 0.1)
-        G = nx.gnp_random_graph(num_nodes, p)
-        graphs.append(dgl.from_networkx(G))
-        labels.append(0)  # random graph label
-        m = np.random.randint(1, 5)
-        G = nx.barabasi_albert_graph(num_nodes, m)
-        G = dgl.from_networkx(G)
-        graphs.append(G)
-        labels.append(1)  # scale-free graph label
-    return graphs, torch.tensor(labels)
+# generate random and scale-free graphs
+#def generate_graphs(num_graphs=100, num_nodes=50):
+#    graphs = []
+#    labels = []
+#    for _ in range(num_graphs):
+#        p = np.random.uniform(0.01, 0.1)
+#        G = nx.gnp_random_graph(num_nodes, p)
+#        graphs.append(dgl.from_networkx(G))
+#        labels.append(0)  # random graph label
+#        m = np.random.randint(1, 5)
+#        G = nx.barabasi_albert_graph(num_nodes, m)
+#        G = dgl.from_networkx(G)
+#        graphs.append(G)
+#        labels.append(1)  # scale-free graph label
+#    return graphs, torch.tensor(labels)
+
 graphs, labels = generate_graphs()
 
 
@@ -73,6 +76,8 @@ def evaluate(model, dataloader, device):
     return accuracy, precision, recall, f1
 
 
+
+# TODO add option to save/load model
 def save_model(model, save_path):
     torch.save(model.state_dict(), save_path)
 
@@ -87,7 +92,7 @@ def load_model(model, save_path):
         return
 
 
-# Train test split, dataloaders
+# train test split, dataloaders
 train_graphs, test_graphs, train_labels, test_labels = train_test_split(graphs, labels, test_size=0.2, random_state=42)
 def collate(samples):
     graphs, labels = map(list, zip(*samples))
@@ -100,24 +105,24 @@ test_dataloader = DataLoader(test_data, batch_size=16, shuffle=False, collate_fn
 
 
 # initializing model
-model = GCNClassifier(in_dim=1, hidden_dim=64, n_classes=2).to(device)
+model = GCNClassifier(in_dim=1, hidden_dim=64, n_classes=3).to(device)
 optimizer = optim.Adam(model.parameters(), lr=0.001)
 loss_func = nn.CrossEntropyLoss()
-n_epochs = 100
+n_epochs = 1000
 
 
-# Training 
+# training 
 for epoch in range(n_epochs):
     epoch_loss = 0
     for batched_graph, batch_labels in train_dataloader:
         batched_graph = batched_graph.to(device)
         batch_labels = batch_labels.to(device)
-        # Forward propagation
+        # forward propagation
         logits = model(batched_graph)
-        # Calculate the loss
+        # calculate loss
         loss = loss_func(logits, batch_labels)
         epoch_loss += loss.item()
-        # Backpropagation
+        # backprop
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
