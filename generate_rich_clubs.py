@@ -85,23 +85,23 @@ def generate_graphs(num_graphs=100, num_nodes=50):
         graphs.append(dgl.from_networkx(G))
         labels.append(0)  # random graph label
 
-        #m = np.random.randint(1, 5)
-        #G = nx.barabasi_albert_graph(num_nodes, m)
-        #G = nx.DiGraph(G)  # make the graph directed
-        #graphs.append(dgl.from_networkx(G))
-        #labels.append(1)  # scale-free graph label
+        m = np.random.randint(1, 5)
+        G = nx.barabasi_albert_graph(num_nodes, m)
+        G = nx.DiGraph(G)  # make the graph directed
+        graphs.append(dgl.from_networkx(G))
+        labels.append(1)  # scale-free graph label
 
         # Add the directed synthetic rich-club network class
         #G = generate_rich_club_network(num_nodes, 0.9)
         G = generate_rich_club_network2(num_nodes, int(0.1*np.power(num_nodes,2)), 0.05)
         #G = generate_rich_club_network2(num_nodes, 0, 0.05)
         graphs.append(dgl.from_networkx(G))
-        labels.append(1)  # directed synthetic rich-club network label
+        labels.append(2)  # directed synthetic rich-club network label
         print(G)
     return graphs, torch.tensor(labels)
 
 
-graphs, labels = generate_graphs()
+graphs, labels = generate_graphs(num_graphs=1024)
 print(graphs)
 print(labels)
 

@@ -30,7 +30,7 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 #        labels.append(1)  # scale-free graph label
 #    return graphs, torch.tensor(labels)
 
-graphs, labels = generate_graphs()
+graphs, labels = generate_graphs(num_graphs=1024)
 
 
 
@@ -45,6 +45,7 @@ class GCNClassifier(nn.Module):
         h = F.relu(self.gcn1(g, h))
         h = F.relu(self.gcn2(g, h))
         g.ndata['h'] = h
+        # average over node attribute 'h'
         hg = dgl.mean_nodes(g, 'h')
         return self.classify(hg)
 
@@ -67,12 +68,12 @@ def evaluate(model, dataloader, device):
             y_true.extend(labels.cpu().numpy())
 
     accuracy = accuracy_score(y_true, y_pred)
-    #precision = precision_score(y_true, y_pred, average='weighted')
-    precision = precision_score(y_true, y_pred)
-    #recall = recall_score(y_true, y_pred, average='weighted')
-    recall = recall_score(y_true, y_pred)
-    #f1 = f1_score(y_true, y_pred, average='weighted')
-    f1 = f1_score(y_true, y_pred)
+    precision = precision_score(y_true, y_pred, average='weighted')
+    #precision = precision_score(y_true, y_pred)
+    recall = recall_score(y_true, y_pred, average='weighted')
+    #recall = recall_score(y_true, y_pred)
+    f1 = f1_score(y_true, y_pred, average='weighted')
+    #f1 = f1_score(y_true, y_pred)
     return accuracy, precision, recall, f1
 
 
@@ -100,8 +101,13 @@ def collate(samples):
     return batched_graph, torch.tensor(labels)
 train_data = list(zip(train_graphs, train_labels))
 test_data = list(zip(test_graphs, test_labels))
-train_dataloader = DataLoader(train_data, batch_size=16, shuffle=True, collate_fn=collate)
-test_dataloader = DataLoader(test_data, batch_size=16, shuffle=False, collate_fn=collate)
+
+#train_dataloader = DataLoader(train_data, batch_size=16, shuffle=True, collate_fn=collate)
+#test_dataloader = DataLoader(test_data, batch_size=16, shuffle=False, collate_fn=collate)
+
+train_dataloader = DataLoader(train_data, batch_size=128, shuffle=True, collate_fn=collate)
+test_dataloader = DataLoader(test_data, batch_size=128, shuffle=False, collate_fn=collate)
+
 
 
 # initializing model
@@ -112,6 +118,9 @@ n_epochs = 1000
 
 
 # training 
+#TODO accuracy training curve
+epoch_t = []
+loss_t  = []
 for epoch in range(n_epochs):
     epoch_loss = 0
     for batched_graph, batch_labels in train_dataloader:
@@ -125,8 +134,13 @@ for epoch in range(n_epochs):
         # backprop
         optimizer.zero_grad()
         loss.backward()
-        optimizer.step()
+        optimizer.step() 
+    epoch_t.append(epoch)
+    loss_t.append(epoch_loss / len(train_dataloader))
     print(f"Epoch {epoch+1}/{n_epochs}, Loss: {epoch_loss / len(train_dataloader)}")
+    if (loss < 0.00001):
+        print("model converged")
+        pass
 
 
 
@@ -136,4 +150,13 @@ print(f'prec: {prec}')
 print(f'rec: {rec}')
 print(f'f1: {f1}')
 
+import matplotlib.pyplot as plt
 
+plt.plot(epoch_t, loss_t)
+plt.xlabel('epoch')
+plt.ylabel('loss')
+plt.title('GCN classifier')
+plt.savefig('lossplot.png')
+
+#plt.clf()
+#plt.plot(acc_t
