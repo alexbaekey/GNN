@@ -5,30 +5,15 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import networkx as nx
+import pickle
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 import torch.optim as optim
 from torch.utils.data import DataLoader
 from generate_rich_clubs import generate_graphs
+import pandas as pd
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-
-
-# generate random and scale-free graphs
-#def generate_graphs(num_graphs=100, num_nodes=50):
-#    graphs = []
-#    labels = []
-#    for _ in range(num_graphs):
-#        p = np.random.uniform(0.01, 0.1)
-#        G = nx.gnp_random_graph(num_nodes, p)
-#        graphs.append(dgl.from_networkx(G))
-#        labels.append(0)  # random graph label
-#        m = np.random.randint(1, 5)
-#        G = nx.barabasi_albert_graph(num_nodes, m)
-#        G = dgl.from_networkx(G)
-#        graphs.append(G)
-#        labels.append(1)  # scale-free graph label
-#    return graphs, torch.tensor(labels)
 
 graphs, labels = generate_graphs(num_graphs=1024)
 
@@ -114,11 +99,13 @@ test_dataloader = DataLoader(test_data, batch_size=128, shuffle=False, collate_f
 model = GCNClassifier(in_dim=1, hidden_dim=64, n_classes=3).to(device)
 optimizer = optim.Adam(model.parameters(), lr=0.001)
 loss_func = nn.CrossEntropyLoss()
-n_epochs = 1000
+n_epochs = 200
 
 
 # training 
 #TODO accuracy training curve
+#TODO save training progress, load if it exists
+# if *.pt exists, load, else train
 epoch_t = []
 loss_t  = []
 for epoch in range(n_epochs):
@@ -142,7 +129,10 @@ for epoch in range(n_epochs):
         print("model converged")
         pass
 
-
+#model_scripted = torch.jit.script(model)
+#torch.save(model, 'GCNClassifier.pt')
+#model_scripted.save('GCNClassifier.pt')
+torch.save(model.state_dict(), 'GCN.pt')
 
 acc, prec, rec, f1 = evaluate(model, test_dataloader, device)
 print(f'acc: {acc}')
@@ -160,3 +150,33 @@ plt.savefig('lossplot.png')
 
 #plt.clf()
 #plt.plot(acc_t
+
+# classifying TE data
+with open('subgraphs.pickle', 'rb') as handle:
+    TEgraphs = pickle.load(handle)
+
+
+#model = GCNClassifier(in_dim=1, hidden_dim=64, n_classes=3).to(device)
+#model.load_state_dict('GCN.pt')
+model.eval()
+
+res = []
+for name, graph in TEgraphs.items():
+    print(name)
+    print(graph)
+    name = name.split('-')
+    influence_type = name[0]
+    te_thresh = name[1]
+    g = dgl.from_networkx(graph).to(device)
+    with torch.no_grad():
+        out = model(g)
+        pred = out.argmax(dim=1)
+        print(pred)
+    res.append([influence_type, te_thresh, pred])
+
+results = pd.DataFrame(res)
+print(results)
+
+
+
+
