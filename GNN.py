@@ -18,7 +18,6 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 graphs, labels = generate_graphs(num_graphs=1024)
 
 
-
 class GCNClassifier(nn.Module):
     def __init__(self, in_dim, hidden_dim, n_classes):
         super(GCNClassifier, self).__init__()
@@ -99,7 +98,7 @@ test_dataloader = DataLoader(test_data, batch_size=128, shuffle=False, collate_f
 model = GCNClassifier(in_dim=1, hidden_dim=64, n_classes=3).to(device)
 optimizer = optim.Adam(model.parameters(), lr=0.001)
 loss_func = nn.CrossEntropyLoss()
-n_epochs = 200
+n_epochs = 1000
 
 
 # training 
@@ -176,7 +175,8 @@ for name, graph in TEgraphs.items():
 
 results = pd.DataFrame(res)
 print(results)
-
+labels = ['influence_type', 'te_thresh', 'predicted_class']
+results.to_csv('results/GNN_predictions.csv', index=False)
 
 
 
